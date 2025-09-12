@@ -7,8 +7,19 @@ const supabaseKey = process.env.SUPABASE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function action({ request }: ActionFunctionArgs) {
+  // Handle CORS for cross-origin requests from Shopify stores
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 200, headers });
+  }
+
   if (request.method !== "POST") {
-    return Response.json({ message: "Method not allowed" }, { status: 405 });
+    return Response.json({ message: "Method not allowed" }, { status: 405, headers });
   }
 
   try {
@@ -29,11 +40,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (error) {
       console.error("Tracking error:", error);
-      return Response.json({ success: false, error: error.message }, { status: 500 });
+      return Response.json({ success: false, error: error.message }, { status: 500, headers });
     }
 
-    return Response.json({ success: true });
+    return Response.json({ success: true }, { headers });
   } catch (error) {
-    return Response.json({ success: false, error: "Invalid JSON body" }, { status: 400 });
+    return Response.json({ success: false, error: "Invalid JSON body" }, { status: 400, headers });
   }
 }
