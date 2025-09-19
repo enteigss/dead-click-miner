@@ -327,12 +327,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Supabase Documentation](https://supabase.com/docs)
 - [Prisma ORM](https://www.prisma.io/docs/)
 
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/dead-click-miner/issues)
-- **Documentation**: [Wiki](https://github.com/yourusername/dead-click-miner/wiki)
-- **Email**: support@deadclickminer.com
-
 ---
 
 **Dead Click Miner** - Turning unproductive clicks into actionable insights 🎯
