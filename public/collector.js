@@ -22,7 +22,7 @@
     // Fetch click data for the current page
 
     // Auto-detect API URL based on environment
-    const isDev = true;
+    const isDev = false;
     const apiBaseUrl = isDev ? 'https://rankings-ellen-commands-mac.trycloudflare.com' : 'https://dead-click-miner.vercel.app';
     const apiUrl = `${apiBaseUrl}/api/insights/preview`;
     const fullUrl = `${apiUrl}?path=${encodeURIComponent(pagePath)}&store=${encodeURIComponent(storeUrl)}`;

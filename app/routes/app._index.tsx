@@ -1,4 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
 import { Page, Card, ResourceList, Text, EmptyState } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
@@ -23,7 +24,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (error) {
     console.error("Supabase error:", error);
     // Handle error appropriately
-    return Response.json({ pages: [] }, { status: 500 });
+    return json({ pages: [] }, { status: 500 });
   }
 
   // 2. Process the raw data in JavaScript to count clicks per page
@@ -41,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }))
     .sort((a, b) => b.click_count - a.click_count); // Sort by most clicks
 
-  return Response.json({ pages });
+  return json({ pages });
 }
 
 // Type for page data

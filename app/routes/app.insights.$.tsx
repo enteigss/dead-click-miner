@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher, useNavigation } from "@remix-run/react";
 import {
   Page,
@@ -44,16 +45,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (error) {
     console.error("Supabase error:", error);
-    return Response.json({ 
-      selectors: [], 
-      pagePath, 
+    return json({
+      selectors: [],
+      pagePath,
       shop: session.shop,
-      error: "Failed to fetch click data" 
+      error: "Failed to fetch click data"
     }, { status: 500 });
   }
 
   if (!rawClicks) {
-    return Response.json({ selectors: [], pagePath, shop: session.shop });
+    return json({ selectors: [], pagePath, shop: session.shop });
   }
 
   // Process data to count selectors
@@ -70,43 +71,93 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }))
     .sort((a, b) => b.click_count - a.click_count);
 
-  return Response.json({ selectors, pagePath, shop: session.shop });
+  return json({ selectors, pagePath, shop: session.shop });
 }
 
 // SERVER-SIDE ACTION: Handles the "Preview Mode" button click
 export async function action({ request }: ActionFunctionArgs) {
-    const { admin, session } = await authenticate.admin(request);
-    const formData = await request.formData();
-    const pagePath = formData.get("pagePath") as string;
-    const shop = session.shop;
+    try {
+        console.log("=== Preview Mode Action Started ===");
 
-    const query = `
-      query GetLiveTheme {
-        themes(first: 10) {
-          edges {
-            node { 
-              id 
-              role
+        const { admin, session } = await authenticate.admin(request);
+        console.log("Authentication successful, shop:", session.shop);
+
+        const formData = await request.formData();
+        const pagePath = formData.get("pagePath") as string;
+        const shop = session.shop;
+
+        console.log("Form data - pagePath:", pagePath);
+        console.log("Session shop:", shop);
+
+        // Try to get preview URL from any product (since products implement OnlineStorePreviewable)
+        const productQuery = `
+          query GetProductPreview {
+            products(first: 1) {
+              edges {
+                node {
+                  id
+                  onlineStorePreviewUrl
+                }
+              }
             }
-          }
+          }`;
+
+        console.log("Executing product query...");
+        const productResponse = await admin.graphql(productQuery);
+        console.log("Product response status:", productResponse.status);
+
+        const productResult = await productResponse.json();
+        console.log("Product query result:", JSON.stringify(productResult, null, 2));
+
+        if ('errors' in productResult && productResult.errors) {
+            console.error("GraphQL errors:", productResult.errors);
+            return json({ error: "GraphQL query failed", details: productResult.errors }, { status: 500 });
         }
-      }`;
 
-    const response = await admin.graphql(query);
-    const result = await response.json();
+        const product = productResult.data?.products?.edges?.[0]?.node;
+        const basePreviewUrl = product?.onlineStorePreviewUrl;
 
-    const themes = result.data?.themes?.edges || [];
-    const mainTheme = themes.find((edge: any) => edge.node.role === "MAIN");
-    
-    if (mainTheme) {
-        const themeId = mainTheme.node.id.split("/").pop();
-        // const previewUrl = `https://${shop}${pagePath}?preview_theme_id=${themeId}&dead_click_preview=true`;
-        const previewUrl = `https://${shop}${pagePath}?dead_click_preview=true`;
-        console.log(`Preview URL: ${previewUrl}`);
-        return Response.json({ previewUrl });
+        console.log("Found product:", !!product);
+        console.log("Base preview URL:", basePreviewUrl);
+
+        if (basePreviewUrl) {
+            try {
+                // Extract the base URL and token, then construct URL for our specific page
+                const url = new URL(basePreviewUrl);
+                console.log("Original URL parts - host:", url.host, "pathname:", url.pathname, "search:", url.search);
+
+                // Keep the authentication parameters but change the path
+                url.pathname = pagePath;
+                url.searchParams.set('dead_click_preview', 'true');
+                const previewUrl = url.toString();
+
+                console.log(`Final preview URL: ${previewUrl}`);
+                return json({ previewUrl });
+            } catch (urlError) {
+                console.error("Error constructing URL:", urlError);
+                throw urlError;
+            }
+        }
+
+        // Fallback: construct URL manually (may require password)
+        console.log("No product preview URL found, using fallback");
+        const fallbackUrl = `https://${shop}${pagePath}?dead_click_preview=true`;
+        console.log(`Fallback preview URL: ${fallbackUrl}`);
+        return json({ previewUrl: fallbackUrl });
+
+    } catch (error) {
+        console.error("=== Preview Mode Action Error ===");
+        console.error("Error type:", error instanceof Error ? error.constructor.name : typeof error);
+        console.error("Error message:", error instanceof Error ? error.message : String(error));
+        console.error("Full error:", error);
+        console.error("Stack trace:", error instanceof Error ? error.stack : "No stack trace");
+
+        return json({
+            error: "Internal server error",
+            details: error instanceof Error ? error.message : String(error),
+            type: error instanceof Error ? error.constructor.name : typeof error
+        }, { status: 500 });
     }
-
-    return Response.json({ error: "Could not retrieve theme ID." }, {status: 500});
 }
 
 
@@ -115,20 +166,23 @@ export default function InsightsPage() {
   const { selectors, pagePath, shop } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const fetcher = useFetcher<typeof action>();
-  const shopify = useAppBridge();
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   const loading = navigation.state === "loading";
 
-  // Handle redirect after preview URL is fetched
+  // Handle opening preview URL in new tab after URL is fetched
   useEffect(() => {
-    if (fetcher.data?.previewUrl) {
-      open(fetcher.data.previewUrl, '_blank');
+    if (fetcher.data && 'previewUrl' in fetcher.data) {
+      // Open the authenticated preview URL in a new tab
+      window.open(fetcher.data.previewUrl, '_blank');
     }
-  }, [fetcher.data, shopify]);
+  }, [fetcher.data]);
 
   const handleTestSelector = (selector: string) => {
-    const testUrl = `https://${shop}${pagePath}?highlight_selector=${encodeURIComponent(selector)}`;
-    open(testUrl, '_blank');
+    // For now, just open the regular preview - could be enhanced to highlight specific selectors
+    const formData = new FormData();
+    formData.append("pagePath", pagePath);
+    fetcher.submit(formData, { method: "post" });
   };
 
   const renderItem = (item: SelectorData) => {
@@ -183,6 +237,7 @@ export default function InsightsPage() {
           }
         />
       </Card>
+
     </Page>
   );
 }

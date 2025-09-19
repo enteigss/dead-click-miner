@@ -2,7 +2,7 @@
 
 client_id = "a4ecff02cb9980ab67b81edada9a0c70"
 name = "PLEASE WORK DEAD CLICK MINER"
-application_url = "https://example.com"
+application_url = "https://dead-click-miner.vercel.app"
 embedded = true
 
 [build]

@@ -1,4 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { createClient } from "@supabase/supabase-js";
 
 // Initialize Supabase client
@@ -11,7 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 
   if (request.method === "OPTIONS") {
@@ -36,8 +37,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     if (!pagePath) {
-      return Response.json(
-        { error: "Missing 'path' parameter" }, 
+      return json(
+        { error: "Missing 'path' parameter" },
         { status: 400, headers }
       );
     }
@@ -56,8 +57,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     if (error) {
       console.error("Supabase error:", error);
-      return Response.json(
-        { error: "Failed to fetch click data" }, 
+      return json(
+        { error: "Failed to fetch click data" },
         { status: 500, headers }
       );
     }
@@ -83,7 +84,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         selector: click.target_selector,
       }));
 
-    return Response.json(
+    return json(
       {
         element_stats,
         click_positions,
@@ -92,8 +93,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   } catch (error) {
     console.error("Preview API error:", error);
-    return Response.json(
-      { error: "Internal server error" }, 
+    return json(
+      { error: "Internal server error" },
       { status: 500, headers }
     );
   }

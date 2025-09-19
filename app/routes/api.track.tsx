@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { createClient } from "@supabase/supabase-js";
 
 // IMPORTANT: This is a public endpoint. Add security checks as needed (e.g., CORS, API keys).
@@ -19,7 +20,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (request.method !== "POST") {
-    return Response.json({ message: "Method not allowed" }, { status: 405, headers });
+    return json({ message: "Method not allowed" }, { status: 405, headers });
   }
 
   try {
@@ -40,11 +41,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (error) {
       console.error("Tracking error:", error);
-      return Response.json({ success: false, error: error.message }, { status: 500, headers });
+      return json({ success: false, error: error.message }, { status: 500, headers });
     }
 
-    return Response.json({ success: true }, { headers });
+    return json({ success: true }, { headers });
   } catch (error) {
-    return Response.json({ success: false, error: "Invalid JSON body" }, { status: 400, headers });
+    return json({ success: false, error: "Invalid JSON body" }, { status: 400, headers });
   }
 }
