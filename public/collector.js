@@ -153,13 +153,41 @@
     });
   }
 
+  // Generate a UUID v4
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  // Get or create a session ID from localStorage
+  function getOrCreateSessionId() {
+    const storageKey = 'dead_click_session_id';
+    let sessionId = localStorage.getItem(storageKey);
+
+    if (!sessionId) {
+      sessionId = generateUUID();
+      localStorage.setItem(storageKey, sessionId);
+      console.log('Dead Click Miner: Created new session ID:', sessionId);
+    } else {
+      console.log('Dead Click Miner: Retrieved existing session ID:', sessionId);
+    }
+
+    return sessionId;
+  }
+
   function initializeCollectionMode() {
     console.log("Activating collection mode.");
-    
+
     // Auto-detect API URL based on environment
     const isDev = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1');
     const apiBaseUrl = isDev ? 'http://localhost:3000' : 'https://dead-click-miner.vercel.app';
-    
+
+    // Get or create session ID once per page load
+    const sessionId = getOrCreateSessionId();
+
     document.addEventListener('click', function(event) {
     console.log("Event triggered.");
     let element = event.target;
@@ -183,7 +211,8 @@
         page_path: window.location.pathname,
         target_selector: getCssSelector(element), // You'll need a function for this
         click_x: Math.round(normalizedX * 10000) / 10000,
-        click_y: Math.round(normalizedY * 10000) / 10000
+        click_y: Math.round(normalizedY * 10000) / 10000,
+        session_id: sessionId
     };
 
     const fetchOptions = {
