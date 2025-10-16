@@ -184,6 +184,7 @@ export default function InsightsPage() {
       <ResourceList.Item
         id={target_selector}
         accessibilityLabel={`${target_selector} with ${click_count} clicks`}
+        onClick={() => {}}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <Text variant="bodyMd" as="p" fontWeight="medium">{target_selector}</Text>
