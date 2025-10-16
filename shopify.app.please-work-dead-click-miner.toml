@@ -5,15 +5,12 @@ name = "PLEASE WORK DEAD CLICK MINER"
 application_url = "https://dead-click-miner.vercel.app"
 embedded = true
 
-[build]
-automatically_update_urls_on_dev = true
-
 [webhooks]
-api_version = "2025-07"
+api_version = "2025-10"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products,write_products,read_script_tags,write_script_tags,read_themes"
+scopes = "read_products,read_script_tags,read_themes,write_products,write_script_tags"
 optional_scopes = [ ]
 use_legacy_install_flow = false
 
@@ -22,3 +19,6 @@ redirect_urls = [
   "http://localhost:3000/api/auth/callback",
   "https://dead-click-miner.vercel.app/api/auth/callback"
 ]
+
+[build]
+automatically_update_urls_on_dev = true

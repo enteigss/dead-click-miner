@@ -178,27 +178,16 @@ export default function InsightsPage() {
     }
   }, [fetcher.data]);
 
-  const handleTestSelector = (selector: string) => {
-    // For now, just open the regular preview - could be enhanced to highlight specific selectors
-    const formData = new FormData();
-    formData.append("pagePath", pagePath);
-    fetcher.submit(formData, { method: "post" });
-  };
-
   const renderItem = (item: SelectorData) => {
     const { target_selector, click_count } = item;
     return (
       <ResourceList.Item
         id={target_selector}
         accessibilityLabel={`${target_selector} with ${click_count} clicks`}
-        onClick={() => handleTestSelector(target_selector)}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <Text variant="bodyMd" as="p" fontWeight="medium">{target_selector}</Text>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Badge tone="critical">{`${click_count} ${click_count === 1 ? 'click' : 'clicks'}`}</Badge>
-                <Button size="micro" onClick={() => handleTestSelector(target_selector)}>Test Selector</Button>
-            </div>
+            <Badge tone="critical">{`${click_count} ${click_count === 1 ? 'click' : 'clicks'}`}</Badge>
         </div>
       </ResourceList.Item>
     );
