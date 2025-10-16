@@ -29,7 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const body = await request.json();
-    const { store_url, page_path, target_selector, click_x, click_y, timestamp, session_id } = body;
+    const { store_url, page_path, target_selector, click_x, click_y, session_id } = body;
 
     // Insert click data with coordinates and session ID
     const { data, error } = await supabase
@@ -40,8 +40,8 @@ export async function action({ request }: ActionFunctionArgs) {
         target_selector,
         click_x,
         click_y,
-        session_id,
-        timestamp: timestamp || new Date().toISOString()
+        session_id
+        // created_at will be set automatically by database default
       }]);
 
     if (error) {
