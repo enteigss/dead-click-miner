@@ -27,16 +27,37 @@ A powerful Shopify app that tracks and visualizes "dead clicks" - user interacti
 - **CORS-enabled APIs** - Cross-origin data collection endpoints
 - **Real-time Processing** - Live click data ingestion and analysis
 
-## 🚀 Quick Start
+## 📊 How It Works
 
-### Prerequisites
+### What is a Dead Click?
+
+A "dead click" is when a user clicks on something that looks clickable but isn't. Common examples:
+- Product images that look like they should zoom or open
+- Text that looks like a link but isn't
+- Decorative buttons that don't do anything
+- Interactive-looking elements that don't respond
+
+### Key Features
+
+- **Automatic Detection**: Lightweight JavaScript tracker detects clicks on non-interactive elements
+- **Analytics Dashboard**: View aggregated dead click data by page and element
+- **Preview Mode**: Visual overlay showing exactly where dead clicks occurred with heatmap dots
+- **Session Tracking**: Groups clicks by user session for better analysis
+
+---
+
+## 🛠️ For Developers
+
+### Development Setup
+
+#### Prerequisites
 
 - **Node.js** (v18.20 or higher)
 - **Shopify Partner Account** - [Create one here](https://partners.shopify.com/signup)
 - **Development Store** - [Set up a test store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store)
 - **Supabase Account** - [Sign up for free](https://supabase.com)
 
-### Installation
+#### Installation
 
 1. **Clone the repository**
    ```bash
@@ -79,17 +100,6 @@ A powerful Shopify app that tracks and visualizes "dead clicks" - user interacti
    ```bash
    npm run dev
    ```
-
-## 📊 Usage
-
-### For Merchants
-
-1. **Install the app** from your Shopify Admin
-2. **View Analytics** - Check the dashboard for pages with dead clicks
-3. **Analyze Patterns** - Click on specific pages to see detailed click data
-4. **Preview Mode** - Add `?dead_click_preview=true` to any store URL to see live overlays
-
-### For Developers
 
 #### API Endpoints
 
