@@ -40,7 +40,7 @@ A powerful Shopify app that tracks and visualizes "dead clicks" - user interacti
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/dead-click-miner.git
+   git clone https://github.com/enteigss/dead-click-miner.git
    cd dead-click-miner
    ```
 
