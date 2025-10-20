@@ -2,8 +2,6 @@
 
 A powerful Shopify app that tracks and visualizes "dead clicks" - user interactions with non-functional UI elements on e-commerce websites. This analytics tool helps merchants identify UX issues and optimize their storefronts for better conversion rates.
 
-![Dead Click Miner Dashboard](https://via.placeholder.com/800x400/f3f4f6/374151?text=Dead+Click+Miner+Dashboard)
-
 ## 🎯 Features
 
 - **Real-time Click Tracking**: Automatically detects and records clicks on non-interactive elements
